@@ -1,21 +1,53 @@
 """
 MRI Ingestion Module
 
-Responsible for:
-- Safely loading raw MRI scans
-- Performing basic integrity checks
-- Extracting minimal metadata
+Handles safe loading of brain MRI scans (NIfTI format)
+and extracts core metadata needed for Alzheimer’s research.
 """
 
-def ingest_mri(path):
-    """
-    Placeholder for MRI ingestion logic.
+from pathlib import Path
+import nibabel as nib
+import numpy as np
 
-    Args:
-        path (str): Path to MRI file (DICOM / NIfTI)
 
-    Returns:
-        image: Loaded image data
-        metadata (dict): Extracted metadata
+def ingest_nifti(path):
     """
-    raise NotImplementedError("MRI ingestion not implemented yet")
+    Load a NIfTI MRI file and extract image + metadata.
+
+    Parameters
+    ----------
+    path : str or Path
+        Path to .nii or .nii.gz file
+
+    Returns
+    -------
+    image : np.ndarray
+        3D MRI volume (X, Y, Z)
+    metadata : dict
+        Core imaging metadata
+    """
+    path = Path(path)
+
+    # Safety checks
+    if not path.exists():
+        raise FileNotFoundError(f"MRI file not found: {path}")
+
+    if not (path.suffix == ".nii" or path.name.endswith(".nii.gz")):
+        raise ValueError("Only NIfTI (.nii / .nii.gz) files are supported")
+
+    # Load MRI
+    nifti = nib.load(str(path))
+    image = nifti.get_fdata(dtype=np.float32)
+
+    # Extract metadata
+    header = nifti.header
+    affine = nifti.affine
+
+    metadata = {
+        "shape": image.shape,
+        "voxel_spacing": header.get_zooms()[:3],
+        "datatype": str(image.dtype),
+        "orientation_affine": affine,
+    }
+
+    return image, metadata
