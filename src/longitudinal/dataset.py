@@ -118,3 +118,27 @@ class LongitudinalDataset:
             "num_subjects": self.num_subjects(),
             "subject_ids": self.subject_ids(),
         }
+    
+    def generate_pairs_for_split(self, split_ids):
+        """
+        Generate longitudinal baseline → follow-up pairs
+        for a given subject split.
+
+        Parameters
+        ----------
+        split_ids : list of subject IDs
+
+        Returns
+        -------
+        list of longitudinal pairs (dicts)
+        """
+        from src.longitudinal.pairs import generate_longitudinal_pairs
+
+        all_pairs = []
+
+        for subject_id in split_ids:
+            subject = self.subjects[subject_id]
+            pairs = generate_longitudinal_pairs(subject)
+            all_pairs.extend(pairs)
+
+        return all_pairs
