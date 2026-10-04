@@ -1,0 +1,25 @@
+# admri pipeline configuration. Every value here feeds the dataset version hash.
+
+pair_strategy = "consecutive"   # consecutive | baseline | all
+affine_tolerance = 1e-3         # max affine difference (mm) for a valid delta pair
+write_deltas = true
+
+[qc]
+min_dim = 32
+min_foreground_ratio = 0.05
+min_spacing_mm = 0.5
+max_spacing_mm = 3.0
+max_anisotropy = 3.0            # above this: warning, not exclusion
+min_snr = 5.0
+
+[normalization]
+lower_percentile = 1.0
+upper_percentile = 99.0
+foreground_fraction = 0.05
+
+[split]
+train = 0.7
+val = 0.15
+test = 0.15
+method = "stratified"           # stratified | hash
+seed = 42
